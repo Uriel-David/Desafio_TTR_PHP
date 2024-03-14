@@ -1,0 +1,19 @@
+{
+    "name": "uriel/desafio_ttr_php",
+    "description": "Challenge TTR - PHP",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Uriel\\DesafioTtrPhp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Uriel-David",
+            "email": "uriel.dqaa@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
