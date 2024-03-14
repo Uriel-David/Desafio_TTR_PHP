@@ -1,6 +1,6 @@
 <?php
 
-namespace Uriel\DesafioTtrPhp\lib;
+namespace App\lib;
 
 class ProcessData
 {

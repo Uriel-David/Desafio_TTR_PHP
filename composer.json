@@ -5,7 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Uriel\\DesafioTtrPhp\\": "src/"
+            "App\\": "src/"
         }
     },
     "authors": [

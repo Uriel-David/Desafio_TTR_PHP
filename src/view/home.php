@@ -1,5 +1,5 @@
 <?php
-    use Uriel\DesafioTtrPhp\lib\ProcessData;
+    use App\lib\ProcessData;
     $processData = new ProcessData();
     $string = $processData->compareData();
 ?>
