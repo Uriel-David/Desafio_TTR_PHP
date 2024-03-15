@@ -1,28 +1,33 @@
 <?php
 
 namespace App\lib;
+use App\exception\MissingCsvException;
 
 class ProcessData
 {
     private $olderCsv;
     private $newCsv;
 
-    public function __construct($newCsv = null, $olderCsv = null)
+    public function __construct($newCsv, $olderCsv)
     {
         $this->newCsv   = $newCsv;
         $this->olderCsv = $olderCsv;
     }
 
-    public function compareCSV()
+    public function compareCSV(): array
     {
         $olderData = $this->readCsv($this->olderCsv);
         $newData = $this->readCsv($this->newCsv);
+
+        if (empty($newData) || empty($olderData)) {
+            throw new MissingCsvException();
+        }
 
         $result = [
             'unchanged_rows' => [],
             'updated_rows' => [],
             'new_rows' => [],
-            'header' => array_merge($olderData['header'], ['Old File Row Index', 'New File Row Index'])
+            'header' => array_merge($olderData['header'], ['old_file_row_index', 'new_file_row_index'])
         ];
 
         foreach ($olderData['rows'] as $index => $oldRow) {
@@ -36,6 +41,7 @@ class ProcessData
                     } else {
                         $result['updated_rows'][] = array_merge($oldRow, [$index + 1, $newIndex + 1]);
                     }
+
                     unset($newData['rows'][$newIndex]);
                     break;
                 }
@@ -52,7 +58,7 @@ class ProcessData
         return $result;
     }
 
-    private function readCsv($filename)
+    private function readCsv($filename): array
     {
         $header = [];
         $rows = [];

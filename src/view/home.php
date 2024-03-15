@@ -1,11 +1,17 @@
 <?php
+    use App\exception\MissingCsvException;
     use App\lib\ProcessData;
-    if(isset($_FILES['newCsv']) && isset($_FILES['olderCsv'])) {
-        $newCsv         = $_FILES['newCsv']['tmp_name'];
-        $olderCsv       = $_FILES['olderCsv']['tmp_name'];
 
-        $processData    = new ProcessData($newCsv, $olderCsv);
-        $results        = $processData->compareCSV();
+    if(isset($_FILES['newCsv']) && isset($_FILES['olderCsv'])) {
+        $newCsv     = $_FILES['newCsv']['tmp_name'];
+        $olderCsv   = $_FILES['olderCsv']['tmp_name'];
+
+        try {
+            $processData    = new ProcessData($newCsv, $olderCsv);
+            $results        = $processData->compareCSV();
+        } catch (MissingCsvException $e) {
+            echo $e->errorMessage();
+        }
     }
 ?>
 
@@ -34,12 +40,15 @@
     <h4>Upload your files:</h4>
     <form action="" method="post" enctype="multipart/form-data">
         <label for="newCsv">Select new CSV:</label>
-        <input type="file" name="newCsv" id="newCsv" accept=".csv"><br>
-        
+        <input type="file" name="newCsv" id="newCsv" accept=".csv" style="margin-bottom: 10px;" required>
+        <br/>
+
         <label for="olderCsv">Select older CSV:</label>
-        <input type="file" name="olderCsv" id="olderCsv" accept=".csv"><br>
-        
-        <input type="submit" value="compare">
+        <input type="file" name="olderCsv" id="olderCsv" accept=".csv" style="margin-bottom: 10px;" required>
+        <br/>
+
+        <br/>
+        <input type="submit" value="compare" style="margin-bottom: 10px;">
     </form>
 
     <?php if (isset($results)): ?>
