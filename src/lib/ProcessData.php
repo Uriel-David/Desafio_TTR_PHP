@@ -8,7 +8,7 @@ class ProcessData
     private $olderCsv;
     private $newCsv;
 
-    public function __construct($newCsv, $olderCsv)
+    public function __construct(string $newCsv, string $olderCsv)
     {
         $this->newCsv   = $newCsv;
         $this->olderCsv = $olderCsv;
@@ -58,7 +58,7 @@ class ProcessData
         return $result;
     }
 
-    private function readCsv($filename): array
+    private function readCsv(string $filename): array
     {
         $header = [];
         $rows = [];

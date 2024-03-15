@@ -12,7 +12,8 @@ class MissingCsvException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public function errorMessage() {
+    public function errorMessage(): string
+    {
         return '<strong>Erro: </strong> ' . $this->getMessage();
     }
 }
