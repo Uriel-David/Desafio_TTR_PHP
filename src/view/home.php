@@ -1,5 +1,6 @@
 <?php
     use App\exception\MissingCsvException;
+    use App\lib\FileCsvReader;
     use App\lib\ProcessData;
 
     if(isset($_FILES['newCsv']) && isset($_FILES['olderCsv'])) {
@@ -7,8 +8,9 @@
         $olderCsv   = $_FILES['olderCsv']['tmp_name'];
 
         try {
-            $processData    = new ProcessData($newCsv, $olderCsv);
-            $results        = $processData->compareCSV();
+            $adapter        = new FileCsvReader();
+            $processData    = new ProcessData($adapter);
+            $results        = $processData->compareCSV($newCsv, $olderCsv);
         } catch (MissingCsvException $e) {
             echo $e->errorMessage();
         }

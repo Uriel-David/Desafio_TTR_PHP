@@ -2,22 +2,21 @@
 
 namespace App\lib;
 use App\exception\MissingCsvException;
+use App\interface\CsvReaderInterface;
 
 class ProcessData
 {
-    private $olderCsv;
-    private $newCsv;
+    private CsvReaderInterface $csvReader;
 
-    public function __construct(string $newCsv, string $olderCsv)
+    public function __construct(CsvReaderInterface $csvReader)
     {
-        $this->newCsv   = $newCsv;
-        $this->olderCsv = $olderCsv;
+        $this->csvReader = $csvReader;
     }
 
-    public function compareCSV(): array
+    public function compareCSV(string $newCsv, string $olderCsv): array
     {
-        $olderData = $this->readCsv($this->olderCsv);
-        $newData = $this->readCsv($this->newCsv);
+        $olderData = $this->csvReader->readCsv($olderCsv);
+        $newData = $this->csvReader->readCsv($newCsv);
 
         if (empty($newData) || empty($olderData)) {
             throw new MissingCsvException();
@@ -56,31 +55,5 @@ class ProcessData
         }
 
         return $result;
-    }
-
-    private function readCsv(string $filename): array
-    {
-        $header = [];
-        $rows = [];
-
-        if (!file_exists($filename) || !is_readable($filename)) {
-            return [];
-        }
-
-        if (($handle = fopen($filename, "r")) !== false) {
-            $rowIndex = 0;
-            while (($data = fgetcsv($handle, 1000, ";")) !== false) {
-                if (empty($header)) {
-                    $header = $data;
-                } else {
-                    $rowData = array_combine($header, $data);
-                    $rows[] = $rowData;
-                }
-                $rowIndex++;
-            }
-            fclose($handle);
-        }
-
-        return ['header' => $header, 'rows' => $rows];
     }
 }
