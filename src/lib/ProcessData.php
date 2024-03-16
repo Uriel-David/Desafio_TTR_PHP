@@ -1,6 +1,7 @@
 <?php
 
 namespace App\lib;
+
 use App\exception\MissingCsvException;
 use App\interface\CsvReaderInterface;
 
@@ -29,29 +30,27 @@ class ProcessData
             'header' => array_merge($olderData['header'], ['old_file_row_index', 'new_file_row_index'])
         ];
 
-        foreach ($olderData['rows'] as $index => $oldRow) {
-            $foundInNew = false;
-            foreach ($newData['rows'] as $newIndex => $newRow) {
+        foreach ($newData['rows'] as $newIndex => $newRow) {
+            $foundInOld = false;
+
+            foreach ($olderData['rows'] as $oldIndex => $oldRow) {
                 if ($oldRow['cnpj'] == $newRow['cnpj']) {
-                    $foundInNew = true;
+                    $foundInOld = true;
 
                     if ($oldRow == $newRow) {
-                        $result['unchanged_rows'][] = array_merge($oldRow, [$index + 1, $newIndex + 1]);
+                        $result['unchanged_rows'][] = array_merge($newRow, [$oldIndex + 1, $newIndex + 1]);
                     } else {
-                        $result['updated_rows'][] = array_merge($oldRow, [$index + 1, $newIndex + 1]);
+                        $result['updated_rows'][] = array_merge($newRow, [$oldIndex + 1, $newIndex + 1]);
                     }
 
-                    unset($newData['rows'][$newIndex]);
+                    unset($olderData['rows'][$oldIndex]);
                     break;
                 }
             }
-            if (!$foundInNew) {
-                $result['unchanged_rows'][] = array_merge($oldRow, [$index + 1, '']);
-            }
-        }
 
-        foreach ($newData['rows'] as $newIndex => $newRow) {
-            $result['new_rows'][] = array_merge($newRow, ['', $newIndex + 1]);
+            if (!$foundInOld) {
+                $result['new_rows'][] = array_merge($newRow, [$oldIndex + 1, $newIndex + 1]);
+            }
         }
 
         return $result;
