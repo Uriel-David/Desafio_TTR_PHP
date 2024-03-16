@@ -63,6 +63,10 @@ class ProcessData
         $header = [];
         $rows = [];
 
+        if (!file_exists($filename) || !is_readable($filename)) {
+            return [];
+        }
+
         if (($handle = fopen($filename, "r")) !== false) {
             $rowIndex = 0;
             while (($data = fgetcsv($handle, 1000, ";")) !== false) {
