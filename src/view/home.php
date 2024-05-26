@@ -10,7 +10,7 @@
         try {
             $adapter        = new FileCsvReader();
             $processData    = new ProcessData($adapter);
-            $results        = $processData->compareCSV($newCsv, $olderCsv);
+            $result         = $processData->compareCSV($newCsv, $olderCsv);
         } catch (MissingCsvException $e) {
             echo $e->errorMessage();
         }
@@ -53,66 +53,30 @@
         <input type="submit" value="compare" style="margin-bottom: 10px;">
     </form>
 
-    <?php if (isset($results)): ?>
-        <h3>Unchanged Rows</h3>
-        <?php if (count($results['unchanged_rows']) > 0): ?>
-            <table>
-                <tr>
-                    <?php foreach ($results['header'] as $header): ?>
-                        <th><?php echo $header; ?></th>
-                    <?php endforeach; ?>
-                </tr>
-                <?php foreach ($results['unchanged_rows'] as $row): ?>
-                    <tr>
-                        <?php foreach ($row as $value): ?>
-                            <td><?php echo $value; ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-        <?php else: ?>
-            <p>No unchanged rows found.</p>
-        <?php endif; ?>
+    <?php if (isset($result)): ?>
+        <h2>Result</h2>
 
-        <h3>Updated Rows</h3>
-        <?php if (count($results['updated_rows']) > 0): ?>
-            <table>
-                <tr>
-                    <?php foreach ($results['header'] as $header): ?>
-                        <th><?php echo $header; ?></th>
-                    <?php endforeach; ?>
-                </tr>
-                <?php foreach ($results['updated_rows'] as $row): ?>
-                    <tr>
-                        <?php foreach ($row as $value): ?>
-                            <td><?php echo $value; ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-        <?php else: ?>
-            <p>No updated rows found.</p>
-        <?php endif; ?>
+        <h3>Identical Rows</h3>
+            <?php foreach ($result['identical'] as $row) : ?>
+                <?= implode(",", $row['data']) . " (" . $row['old_position'] . "-" . $row['new_position'] . ")" ?><br />
+            <?php endforeach; ?>
 
-        <h3>New Rows</h3>
-        <?php if (count($results['new_rows']) > 0): ?>
-            <table>
-                <tr>
-                    <?php foreach ($results['header'] as $header): ?>
-                        <th><?php echo $header; ?></th>
-                    <?php endforeach; ?>
-                </tr>
-                <?php foreach ($results['new_rows'] as $row): ?>
-                    <tr>
-                        <?php foreach ($row as $value): ?>
-                            <td><?php echo $value; ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-        <?php else: ?>
-            <p>No new rows found.</p>
-        <?php endif; ?>
+            <h3>Updated Rows</h3>
+            <?php foreach ($result['updated'] as $row) : ?>
+                <?= implode(",", $row['data']) . " (" . $row['old_position'] . "-" . $row['new_position'] . ")" ?><br />
+            <?php endforeach; ?>
+
+            <h3>New Rows</h3>
+            <?php foreach ($result['new'] as $row) : ?>
+                <?= implode(",", $row['data']) . " (" . $row['old_position'] . "-" . $row['new_position'] . ")" ?><br />
+            <?php endforeach; ?>
+
+            <h3>Removed Rows</h3>
+            <?php foreach ($result['removed'] as $row) : ?>
+                <?= implode(",", $row['data']) . " (" . $row['old_position'] . "-" . $row['new_position'] . ")" ?><br />
+            <?php endforeach; ?>
+    <?php else: ?>
+        <p>No new rows found.</p>
     <?php endif; ?>
 </body>
 </html>

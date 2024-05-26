@@ -10,27 +10,19 @@ class FileCsvReader implements CsvReaderInterface
 
     public function readCsv(string $filename): array
     {
-        $header = [];
-        $rows = [];
-
         if (!file_exists($filename) || !is_readable($filename)) {
             return [];
         }
 
-        if (($handle = fopen($filename, "r")) !== false) {
-            $rowIndex = 0;
-            while (($data = fgetcsv($handle, 1000, ";")) !== false) {
-                if (empty($header)) {
-                    $header = $data;
-                } else {
-                    $rowData = array_combine($header, $data);
-                    $rows[] = $rowData;
-                }
-                $rowIndex++;
+        $rows = [];
+        if (($handle = fopen($filename, "r")) !== FALSE) {
+            $position = 1;
+            while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+                $rows[] = ['data' => $data, 'position' => $position];
+                $position++;
             }
             fclose($handle);
         }
-
-        return ['header' => $header, 'rows' => $rows];
+        return $rows;
     }
 }

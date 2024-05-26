@@ -23,36 +23,64 @@ class ProcessData
             throw new MissingCsvException();
         }
 
-        $result = [
-            'unchanged_rows' => [],
-            'updated_rows' => [],
-            'new_rows' => [],
-            'header' => array_merge($olderData['header'], ['old_file_row_index', 'new_file_row_index'])
-        ];
+        $identicalRows = [];
+        $updatedRows = [];
+        $newRows = [];
+        $removedRows = [];
 
-        foreach ($newData['rows'] as $newIndex => $newRow) {
-            $foundInOld = false;
+        $oldDataCopy = $olderData;
 
-            foreach ($olderData['rows'] as $oldIndex => $oldRow) {
-                if ($oldRow['cnpj'] == $newRow['cnpj']) {
-                    $foundInOld = true;
+        foreach ($newData as $newRow) {
+            $foundIdentical = false;
+            $foundUpdated = false;
 
-                    if ($oldRow == $newRow) {
-                        $result['unchanged_rows'][] = array_merge($newRow, [$oldIndex + 1, $newIndex + 1]);
-                    } else {
-                        $result['updated_rows'][] = array_merge($newRow, [$oldIndex + 1, $newIndex + 1]);
-                    }
-
-                    unset($olderData['rows'][$oldIndex]);
+            foreach ($oldDataCopy as $key => $oldRow) {
+                if ($newRow['data'] == $oldRow['data']) {
+                    $identicalRows[] = [
+                        'data' => $newRow['data'],
+                        'new_position' => $newRow['position'],
+                        'old_position' => $oldRow['position']
+                    ];
+                    unset($oldDataCopy[$key]);
+                    $foundIdentical = true;
                     break;
                 }
             }
 
-            if (!$foundInOld) {
-                $result['new_rows'][] = array_merge($newRow, [$oldIndex + 1, $newIndex + 1]);
+            if (!$foundIdentical) {
+                foreach ($olderData as $oldRow) {
+                    if ($newRow['data'] != $oldRow['data'] && $newRow['data'][0] == $oldRow['data'][0]) {
+                        $updatedRows[] = [
+                            'data' => $newRow['data'],
+                            'new_position' => $newRow['position'],
+                            'old_position' => $oldRow['position']
+                        ];
+                        $foundUpdated = true;
+                        break;
+                    }
+                }
+
+                if (!$foundUpdated) {
+                    $newRows[] = [
+                        'data' => $newRow['data'],
+                        'new_position' => $newRow['position']
+                    ];
+                }
             }
         }
 
-        return $result;
+        foreach ($oldDataCopy as $remainingOldRow) {
+            $removedRows[] = [
+                'data' => $remainingOldRow['data'],
+                'old_position' => $remainingOldRow['position']
+            ];
+        }
+
+        return [
+            'identical' => $identicalRows,
+            'updated' => $updatedRows,
+            'new' => $newRows,
+            'removed' => $removedRows
+        ];
     }
 }
